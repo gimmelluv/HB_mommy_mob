@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Для мамы с любовью</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f2ea;
+      --card: rgba(255, 255, 255, 0.68);
+      --accent: #e7b9c1;
+      --accent-soft: #f3d7dc;
+      --text-main: #5a5152;
+      --text-soft: #786f70;
+      --line: rgba(117, 104, 106, 0.18);
+      --shadow: 0 20px 40px rgba(102, 78, 81, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 18px;
+      --ease: 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 12% 16%, rgba(255, 255, 255, 0.7), transparent 34%),
+        radial-gradient(circle at 90% 8%, rgba(231, 185, 193, 0.14), transparent 28%),
+        linear-gradient(160deg, #fbf6ef 0%, var(--bg) 55%, #f7efe8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      overflow-x: hidden;
+    }
+
+    .story-shell {
+      width: min(1040px, 100%);
+      position: relative;
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(2px);
+      padding: clamp(34px, 5.8vw, 74px);
+      min-height: min(90vh, 820px);
+      display: flex;
+      align-items: stretch;
+    }
+
+    .story-screen {
+      position: absolute;
+      inset: clamp(34px, 5.8vw, 74px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 30px;
+      opacity: 0;
+      transform: translateY(18px);
+      pointer-events: none;
+      transition: opacity var(--ease), transform var(--ease);
+    }
+
+    .story-screen.is-active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .story-screen[data-screen="4"] {
+      gap: 16px;
+    }
+
+    .story-screen[data-screen="4"] .line-list {
+      gap: 8px;
+      padding-top: 0;
+    }
+
+    .story-screen[data-screen="4"] .photo-grid.two {
+      width: min(100%, 520px);
+    }
+
+    .story-screen[data-screen="4"] .controls {
+      margin-top: 0;
+    }
+
+    h1, h2 {
+      margin: 0;
+      font-family: "Cormorant Garamond", serif;
+      line-height: 1.05;
+      letter-spacing: 0.01em;
+      color: #6a5758;
+    }
+
+    h1 {
+      font-size: clamp(2.1rem, 5vw, 3.25rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: clamp(2rem, 4.2vw, 3rem);
+      font-weight: 600;
+    }
+
+    .lead,
+    .story-text {
+      margin: 0;
+      white-space: pre-line;
+      color: var(--text-soft);
+      line-height: 1.84;
+      font-size: clamp(1.02rem, 2vw, 1.12rem);
+      max-width: 60ch;
+    }
+
+    .photo-grid {
+      width: min(100%, 680px);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .photo-grid img {
+      width: 100%;
+      display: block;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1px solid rgba(177, 142, 147, 0.25);
+      box-shadow: 0 10px 18px rgba(124, 97, 101, 0.14);
+      background: #fffdfb;
+    }
+
+    .line-list {
+      display: grid;
+      gap: 12px;
+      padding: 6px 0 0;
+      max-width: 62ch;
+    }
+
+    .line-item {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 460ms ease, transform 460ms ease;
+      color: var(--text-soft);
+      font-size: clamp(1.02rem, 2vw, 1.1rem);
+      line-height: 1.7;
+      padding-left: 14px;
+      border-left: 2px solid rgba(231, 185, 193, 0.6);
+    }
+
+    .line-item.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 13px 24px;
+      font: inherit;
+      font-weight: 500;
+      font-size: 0.96rem;
+      color: #594d4e;
+      background: linear-gradient(180deg, #f7e5e9, var(--accent-soft));
+      box-shadow: 0 8px 18px rgba(191, 145, 153, 0.22);
+      cursor: pointer;
+      transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 22px rgba(191, 145, 153, 0.27);
+      filter: saturate(1.03);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:focus-visible {
+      outline: 2px solid rgba(179, 123, 133, 0.48);
+      outline-offset: 2px;
+    }
+
+    .ghost {
+      background: rgba(255, 255, 255, 0.75);
+      box-shadow: 0 8px 16px rgba(144, 122, 125, 0.14);
+    }
+
+    .message {
+      min-height: 24px;
+      margin: 2px 0 0;
+      color: #8e676f;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 280ms ease, transform 280ms ease;
+    }
+
+    .message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .photo-grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .photo-note {
+      margin: -12px 0 0;
+      font-size: 0.86rem;
+      color: #8f7a7c;
+    }
+
+    .hearts-layer,
+    .confetti-layer {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -12px;
+      font-size: 1rem;
+      animation: floatUp 1600ms ease-out forwards;
+      opacity: 0.9;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 14px;
+      top: -18px;
+      border-radius: 3px;
+      opacity: 0.9;
+      animation: confettiFall 2100ms linear forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) translateX(0) scale(0.8);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.95;
+      }
+      100% {
+        transform: translateY(-180px) translateX(var(--drift, 0px)) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      100% {
+        transform: translateY(115vh) rotate(540deg);
+      }
+    }
+
+    @media (max-width: 680px) {
+      body {
+        padding: 14px;
+        align-items: flex-start;
+      }
+
+      .story-shell {
+        min-height: auto;
+        padding: 22px;
+      }
+
+      .story-screen {
+        inset: 22px;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .photo-grid,
+      .photo-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .photo-grid img {
+        min-height: 120px;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .story-shell {
+        padding: 18px;
+      }
+
+      .story-screen {
+        inset: 18px;
+        gap: 20px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      h2 {
+        font-size: 1.7rem;
+      }
+
+      .lead,
+      .story-text,
+      .line-item {
+        font-size: 0.98rem;
+      }
+
+      .photo-grid,
+      .photo-grid.two {
+        grid-template-columns: 1fr;
+      }
+
+      .photo-grid img {
+        min-height: 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="story-shell">
+    <div class="confetti-layer" id="confettiLayer"></div>
+    <div class="hearts-layer" id="heartsLayer"></div>
+
+    <section class="story-screen is-active" data-screen="1">
+      <h1>Привет, мама 💛</h1>
+      <p class="lead">У нас для тебя есть кое-что особенное…
+Небольшая история.
+Про тебя. Про нас. И про всё, что мы так редко говорим вслух.</p>
+      <div class="controls">
+        <button type="button" data-next>Начать</button>
+      </div>
+    </section>
+
+    <section class="story-screen" data-screen="2">
+      <p class="story-text">Мы помним столько моментов,
+которые кажутся совсем маленькими…
+но на самом деле — самыми важными.
+
+Ты всегда умела создавать уют из ничего.
+Дом, в который хотелось возвращаться.
+Тепло, которое чувствуется до сих пор.</p>
+      <div class="photo-grid" aria-label="Фотографии воспоминаний">
+        <img src="assets/photo_2026-05-06_19.17.01-88a8c936-71b0-4fa1-ad27-90d59b34df09.png" alt="Мама с дочкой обнимаются в лесу">
+        <img src="assets/photo_2026-05-06_19.16.49-8f2e3cd8-c056-47dd-b450-77199a3437a8.png" alt="Семейная прогулка на природе">
+        <img src="assets/photo_2026-05-06_19.16.55-1998d506-5b8f-4262-b231-65d23e38ed15.png" alt="Черно-белое фото мамы с дочкой">
+      </div>
+      <p class="photo-note">Наши тёплые моменты вместе</p>
+      <div class="controls">
+        <button type="button" data-next>Далее</button>
+      </div>
+    </section>
+
+    <section class="story-screen" data-screen="3">
+      <p class="story-text">Сейчас мы смотрим на тебя
+и всё так же восхищаемся.
+
+Тем, как ты создаёшь красоту своими руками.
+Сколько души ты вкладываешь в каждую деталь.
+
+Каждая твоя работа — это не просто вещь.
+Это настроение. Забота. И частичка тебя.</p>
+      <div class="photo-grid" aria-label="Фотографии маминых работ и вдохновения">
+        <img src="assets/photo_2026-05-06_19.19.54-b27adc75-bd4b-4ca2-818b-cd2ca7cba320.png" alt="Плетеная корзина в уютном интерьере">
+        <img src="assets/photo_2026-05-06_19.20.02-6246c69f-5881-46d9-b78f-ba9a1c390f02.png" alt="Мама с букетом цветов на природе">
+        <img src="assets/photo_2026-05-06_19.20.09-74fd85c4-b76a-4270-aabc-5f5586923d06.png" alt="Плетеная корзина ручной работы на улице">
+      </div>
+      <p class="photo-note">Ты сама как вдохновение</p>
+      <div class="controls">
+        <button type="button" data-next>Далее</button>
+      </div>
+    </section>
+
+    <section class="story-screen" data-screen="4">
+      <div class="line-list" id="lineList">
+        <p class="line-item">Ты — та, кто всегда поддержит</p>
+        <p class="line-item">кто найдёт нужные слова</p>
+        <p class="line-item">кто сделает даже обычный день чуть теплее</p>
+        <p class="line-item">кто вдохновляет нас быть лучше</p>
+        <p class="line-item">И мы правда очень этим гордимся 💛</p>
+      </div>
+      <div class="photo-grid two" aria-label="Ещё тёплые воспоминания">
+        <img src="assets/photo_2026-05-06_19.21.38-733c1513-9184-40ff-9ab6-e15c46ec380f.png" alt="Мама с букетом роз дома">
+        <img src="assets/photo_2026-05-06_19.21.42-c620c7c6-793a-4e4e-b8fb-bddd5d7e0aa9.png" alt="Мама с дочерьми на подвесном диване">
+      </div>
+      <div class="controls">
+        <button type="button" data-next>Далее</button>
+      </div>
+    </section>
+
+    <section class="story-screen" data-screen="5">
+      <p class="story-text">Мы не всегда говорим это вслух…
+но ты — очень важная часть нашей жизни.
+
+Та, на кого мы равняемся.
+Та, к кому хочется прийти.
+Та, кого мы очень любим.</p>
+      <div class="controls">
+        <button type="button" data-next>Далее</button>
+      </div>
+    </section>
+
+    <section class="story-screen" data-screen="6">
+      <h2>С днём рождения, мама 💛</h2>
+      <p class="story-text">Спасибо тебе за всё, что ты для нас делаешь.
+За тепло. За заботу. За любовь.
+
+Мы тебя очень сильно любим.
+И очень ценим.
+
+С любовью,
+твои девочки 💛</p>
+      <div class="photo-grid" aria-label="Любимые кадры">
+        <img src="assets/photo_2026-05-06_19.22.56-3ef1114a-e581-44a3-93d2-004b0e8d8c5e.png" alt="Мама и дочка дома за чаем">
+        <img src="assets/photo_2026-05-06_19.22.40-44352403-8644-4a0d-ab16-a19b636c007b.png" alt="Селфи мамы и дочки в зале">
+        <img src="assets/IMAGE_2026-05-06_19_23_31-ce27542e-165b-41ed-acd1-dde434d5f7cf.png" alt="Семейное фото у озера">
+      </div>
+
+      <div class="controls">
+        <button type="button" id="smileButton">Нажми, если улыбаешься 😊</button>
+        <button type="button" class="ghost" id="restartButton">Сначала</button>
+      </div>
+      <p class="message" id="smileMessage">Мы знали 💛</p>
+    </section>
+  </main>
+
+  <script>
+    const screens = Array.from(document.querySelectorAll(".story-screen"));
+    const nextButtons = document.querySelectorAll("[data-next]");
+    const lineItems = Array.from(document.querySelectorAll(".line-item"));
+    const smileButton = document.getElementById("smileButton");
+    const restartButton = document.getElementById("restartButton");
+    const smileMessage = document.getElementById("smileMessage");
+    const heartsLayer = document.getElementById("heartsLayer");
+    const confettiLayer = document.getElementById("confettiLayer");
+    const storyShell = document.querySelector(".story-shell");
+
+    let currentScreen = 0;
+    let lineRevealTimers = [];
+    const DEBUG_RUN_ID = "post-fix";
+
+    function debugLog(payload) {
+      // #region agent log
+      fetch("http://127.0.0.1:7745/ingest/40d52fa6-bd38-4af5-9e1c-bf0189ba5039", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "22bb88"
+        },
+        body: JSON.stringify({
+          sessionId: "22bb88",
+          runId: DEBUG_RUN_ID,
+          timestamp: Date.now(),
+          ...payload
+        })
+      }).catch(() => {});
+      // #endregion
+    }
+
+    function logScreen4Layout(reason) {
+      const activeScreen = screens[currentScreen];
+      if (!activeScreen || Number(activeScreen.dataset.screen) !== 4) return;
+      const controls = activeScreen.querySelector(".controls");
+      const lineList = activeScreen.querySelector(".line-list");
+      const photoGrid = activeScreen.querySelector(".photo-grid");
+      if (!controls || !lineList || !photoGrid || !storyShell) return;
+
+      const shellRect = storyShell.getBoundingClientRect();
+      const screenRect = activeScreen.getBoundingClientRect();
+      const controlsRect = controls.getBoundingClientRect();
+      const lineRect = lineList.getBoundingClientRect();
+      const photoRect = photoGrid.getBoundingClientRect();
+      const controlsVisibleInScreen =
+        controlsRect.top >= screenRect.top && controlsRect.bottom <= screenRect.bottom;
+      const controlsOffsetTop = controls.offsetTop;
+      const controlsOffsetBottom = controls.offsetTop + controls.offsetHeight;
+
+      debugLog({
+        hypothesisId: "H5_H6_H7_H8",
+        location: "index.html:setActiveScreen/logScreen4Layout",
+        message: "Screen4 layout metrics",
+        data: {
+          reason,
+          viewportWidth: window.innerWidth,
+          viewportHeight: window.innerHeight,
+          shell: { width: shellRect.width, height: shellRect.height, bottom: shellRect.bottom },
+          screen: { width: screenRect.width, height: screenRect.height, bottom: screenRect.bottom },
+          lineListBottom: lineRect.bottom,
+          photoGridBottom: photoRect.bottom,
+          controlsBottom: controlsRect.bottom,
+          controlsOverScreen: controlsRect.bottom > screenRect.bottom,
+          controlsOverShell: controlsRect.bottom > shellRect.bottom,
+          screenClientHeight: activeScreen.clientHeight,
+          screenScrollHeight: activeScreen.scrollHeight,
+          screenScrollTop: activeScreen.scrollTop,
+          controlsOffsetTop,
+          controlsOffsetBottom,
+          controlsVisibleInScreen
+        }
+      });
+    }
+
+    function setActiveScreen(nextIndex) {
+      screens[currentScreen].classList.remove("is-active");
+      currentScreen = nextIndex;
+      screens[currentScreen].classList.add("is-active");
+
+      if (Number(screens[currentScreen].dataset.screen) === 4) {
+        revealLines();
+      }
+
+      if (Number(screens[currentScreen].dataset.screen) === 6) {
+        launchConfetti(56);
+      }
+    }
+
+    function revealLines() {
+      lineRevealTimers.forEach((id) => window.clearTimeout(id));
+      lineRevealTimers = [];
+      lineItems.forEach((item) => item.classList.remove("show"));
+
+      lineItems.forEach((item, index) => {
+        const timer = window.setTimeout(() => {
+          item.classList.add("show");
+        }, 220 + index * 420);
+        lineRevealTimers.push(timer);
+      });
+    }
+
+    function launchConfetti(amount = 34) {
+      const shades = ["#f3c2cb", "#f8ddd1", "#f0cf8f", "#e8b6bf", "#ffffff"];
+      for (let i = 0; i < amount; i += 1) {
+        const piece = document.createElement("span");
+        piece.className = "confetti";
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = shades[Math.floor(Math.random() * shades.length)];
+        piece.style.animationDelay = `${Math.random() * 260}ms`;
+        piece.style.transform = `translateY(0) rotate(${Math.random() * 80}deg)`;
+        confettiLayer.appendChild(piece);
+
+        window.setTimeout(() => {
+          piece.remove();
+        }, 2400);
+      }
+    }
+
+    function spawnHearts() {
+      for (let i = 0; i < 9; i += 1) {
+        const heart = document.createElement("span");
+        heart.className = "heart";
+        heart.textContent = i % 3 === 0 ? "💛" : "♡";
+        heart.style.left = `${35 + Math.random() * 30}%`;
+        heart.style.setProperty("--drift", `${(Math.random() - 0.5) * 90}px`);
+        heart.style.animationDelay = `${i * 80}ms`;
+        heartsLayer.appendChild(heart);
+
+        window.setTimeout(() => {
+          heart.remove();
+        }, 1900);
+      }
+    }
+
+    function restartStory() {
+      lineRevealTimers.forEach((id) => window.clearTimeout(id));
+      lineRevealTimers = [];
+      lineItems.forEach((item) => item.classList.remove("show"));
+      smileMessage.classList.remove("show");
+      screens[currentScreen].classList.remove("is-active");
+      currentScreen = 0;
+      screens[currentScreen].classList.add("is-active");
+      confettiLayer.replaceChildren();
+      heartsLayer.replaceChildren();
+    }
+
+    nextButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (currentScreen < screens.length - 1) {
+          setActiveScreen(currentScreen + 1);
+        }
+      });
+    });
+
+    smileButton.addEventListener("click", () => {
+      smileMessage.classList.add("show");
+      spawnHearts();
+      launchConfetti(20);
+    });
+
+    restartButton.addEventListener("click", restartStory);
+
+    window.addEventListener("resize", () => {
+      logScreen4Layout("resize");
+    });
+
+    logScreen4Layout("initial-load");
+  </script>
+</body>
+</html>
